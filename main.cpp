@@ -1,5 +1,8 @@
 #include <iostream>
+#include <fstream>
 #include <cstring>
+#include <unistd.h>
+
 
 using namespace std;
 
@@ -30,6 +33,11 @@ class Life {
     int view_x = 0;
     int view_y = 0;
 
+    // Position of the cursor relative
+    // to the top left of the view
+    int cursor_x = 0;
+    int cursor_y = 0;
+
     bool board[WORLD_SIZE][WORLD_SIZE] = { 0 };
     // Used to fill the actual board when computing
     // the next generation
@@ -41,12 +49,14 @@ class Life {
     // when the board is filled randomly.
     int random_count = 0;
     
+    static bool isValidPosition(int x, int y) {
+        return x >= 0 && x < WORLD_SIZE
+            && y >= 0 && y < WORLD_SIZE;
+    }
+
     bool isAlive(int x, int y) {
-        // Edges are dead
-        if(x < 0 || x > WORLD_SIZE - 1
-            || y < 0 || y > WORLD_SIZE - 1) return false;
-        
-        return board[x][y];
+        // Edges are dead by default
+        return Life::isValidPosition(x, y) && board[x][y];
     }
 
     int countLiveNeighbours(int x, int y) {
@@ -54,7 +64,6 @@ class Life {
             + isAlive(x, y - 1)
             + isAlive(x + 1, y - 1)
             + isAlive(x - 1, y)
-            + isAlive(x, y)
             + isAlive(x + 1, y)
             + isAlive(x - 1, y + 1)
             + isAlive(x, y + 1)
@@ -105,6 +114,17 @@ class Life {
         view_y += y;
     }
 
+    void moveCursor(int x, int y) {
+        cursor_x += x;
+        cursor_y += y;
+    }
+
+    void toggleCursor() {
+        if(Life::isValidPosition(cursor_x, cursor_y)) {
+            board[cursor_x][cursor_y] = !board[cursor_x][cursor_y];
+        }
+    }
+
     void makeRandomAlive() {
 
         // Clear board
@@ -134,6 +154,34 @@ class Life {
         }
     }
 
+    void fillViewFromFile(ifstream& file)
+    {
+        killAll();
+
+        int symbol;
+
+        int x = view_x;
+        int y = view_y;
+
+        while((symbol = file.get()) != EOF)
+        {
+            if(symbol == '\n')
+            {
+                x = view_x;
+                y += 1;    
+            }
+            else
+            {
+                if(Life::isValidPosition(x, y))
+                {
+                    if(symbol == 'x') board[x][y] = true;
+                    else board[x][y] = false;
+                }
+
+                x += 1;
+            }
+        }
+    }
 };
 
 // Reads a character from stdin, skipping leading Enters
