@@ -10,6 +10,10 @@ class Life {
     const int VIEW_WIDTH = 80;
     const int VIEW_HEIGHT = 25;
 
+    // Position of the view
+    int view_x = 0;
+    int view_y = 0;
+
     bool board[WORLD_SIZE][WORLD_SIZE] = { 0 };
     bool temp_board[WORLD_SIZE][WORLD_SIZE] = { 0 };
 
@@ -55,6 +59,27 @@ class Life {
         }
 
         memcpy(board, temp_board, sizeof(bool) * WORLD_SIZE * WORLD_SIZE); 
+    }
+
+    void killAll() {
+        for(int x = 0; x < WORLD_SIZE; x++)
+        for(int y = 0; y < WORLD_SIZE; y++)
+        {
+            board[x][y] = false;
+        }
+    }
+
+    void killView() {
+        for(int x = view_x; x < view_x + VIEW_WIDTH; x++)
+        for(int y = view_y; y < view_y + VIEW_HEIGHT; y++)
+        {
+            board[x][y] = false;
+        }
+    }
+
+    void moveView(int x, int y) {
+        view_x += x;
+        view_y += y;
     }
 };
 
