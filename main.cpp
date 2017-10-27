@@ -5,6 +5,22 @@ using namespace std;
 
 #define WORLD_SIZE 1000
 
+// Random number generator
+class RNG {
+    static int random_number;
+
+    public:
+
+    static void set_seed(int seed) {
+        random_number = seed;
+    }
+
+    static int get_random_number() {
+        random_number = (221 * random_number + 1) % WORLD_SIZE;
+        return random_number;
+    }
+};
+
 class Life {
     
     const int VIEW_WIDTH = 80;
@@ -15,8 +31,15 @@ class Life {
     int view_y = 0;
 
     bool board[WORLD_SIZE][WORLD_SIZE] = { 0 };
+    // Used to fill the actual board when computing
+    // the next generation
     bool temp_board[WORLD_SIZE][WORLD_SIZE] = { 0 };
 
+    // Parameters
+    
+    // The amount of random cells picked and made alive
+    // when the board is filled randomly.
+    int random_count = 0;
     
     bool isAlive(int x, int y) {
         // Edges are dead
@@ -40,7 +63,7 @@ class Life {
 
     public:
 
-    bool nextGeneration() {
+    void nextGeneration() {
         // Produce the next board according
         // to the rules of Game of Life
         for(int x = 0; x < WORLD_SIZE; x++)
@@ -81,6 +104,23 @@ class Life {
         view_x += x;
         view_y += y;
     }
+
+    void makeRandomAlive() {
+
+        // Clear board
+        killAll();
+
+        // Then fill cells at random
+        for(int i = 0; i < random_count; i++)
+        {
+            int x = RNG::get_random_number();
+            int y = RNG::get_random_number();
+
+            board[x][y] = true;
+        }
+    }
+
+
 };
 
 // Reads a character from stdin, skipping leading Enters
