@@ -120,6 +120,19 @@ class Life {
         }
     }
 
+    void printView() {
+        
+        for(int y = view_y; y < view_y + VIEW_HEIGHT; y++)
+        {
+            for(int x = view_x; x < view_x + VIEW_WIDTH; x++)
+            {
+                if(board[x][y]) cout << "x";
+                else cout << " ";
+            }
+
+            cout << endl;
+        }
+    }
 
 };
 
@@ -158,5 +171,17 @@ void draw() {
 
 int main()
 {
+    ifstream file("glidergun.txt");
+
+    Life* game = new Life();
+
+    game->fillViewFromFile(file);
+
+    for(;;) {
+        game->printView(); 
+        usleep(1);
+        game->nextGeneration();
+    }
+
     return 0;
 }
