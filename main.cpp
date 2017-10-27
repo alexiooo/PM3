@@ -3,19 +3,18 @@
 using namespace std;
 
 // Reads a character from stdin, skipping leading Enters
-char readChar () {
+char read_char () {
     char kar;
     while ( (kar = cin.get()) == '\n' ) {}
     return kar;
 }
 
 // Reads a number from stdin, stops interpreting when maxDigits has been reached
-int readNum( int maxDigits ) {
-    char kar;
+int read_num(int max_digits) {
     int num = 0;
-    int maximum = maxDigits * 10;
+    int maximum = max_digits * 10;
 
-    kar = readChar();
+    char kar = read_char();
     while ( kar != '\n' ) {
         if ( num < maximum && '0' <= kar && kar <= 9 ){
             num *= 10;
@@ -32,12 +31,11 @@ void draw() {
     //drawLife()
     cout << string (100, '-') << endl;
     cout << endl; // Toon paramaterwaarden
-    cout << "(S)top (H)eelschoon S(c)hoon (P)arameters "
+    cout << "(S)top (H)eelschoon S(c)hoon (P)arameters " << endl;
 }
 
 
 int main()
 {
-    printMenu();
     return 0;
 }
