@@ -231,13 +231,6 @@ class Life {
     }
 };
 
-// Reads a character from stdin, skipping leading Enters
-char read_char () {
-    char kar;
-    while ( (kar = cin.get()) == '\n' ) {}
-    return kar;
-}
-
 // Reads a number from stdin, stops interpreting when maxDigits has been reached
 int read_num(int max_digits) {
     int num = 0;
