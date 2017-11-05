@@ -144,12 +144,29 @@ class Life {
         }
     }
 
-    void printView() {
+    void printView(bool print_cursor) {
         
+        if(print_cursor)
+        {
+            for(int x = view_x; x < cursor_x && x < VIEW_WIDTH; x++)
+            {
+                cout << " "; 
+            }
+            cout << " |" << endl;
+        }
+
+
         for(int y = view_y; y < view_y + VIEW_HEIGHT; y++)
         {
+            if(print_cursor)
+            {
+                if(y == cursor_y) cout << "-";
+                else cout << " ";
+            }
+
             for(int x = view_x; x < view_x + VIEW_WIDTH; x++)
             {
+
                 if(board[x][y]) cout << "x";
                 else cout << " ";
             }
@@ -211,21 +228,110 @@ int read_num(int max_digits) {
     return num;
 }
 
+void print_menu(bool using_cursor)
+{
+    if(using_cursor)
+    {
+        cout << "Use w,a,s,d to move cursor around" << endl;
+        cout << "Press space to toggle cell" << endl;
+        cout << "Press b to return to menu" << endl;
+    }
+    else
+    {
+        cout << "1. Exit ";
+        cout << "2. Clean world ";
+        cout << "3. Clean view ";
+        cout << "4. Change parameters ";
+        cout << "5. Random ";
+        cout << "6. Toggle using cursor ";
+        cout << "7. Load glidergun.txt ";
+        cout << "8. Compute one generation ";
+        cout << "9. Run Game of Life " << endl;
+        cout << "Use W,A,S,D to move view around" << endl;
+    }
 }
 
+void move_cursor_or_view(Life *game, bool use_cursor, int x, int y)
+{
+    if(use_cursor)
+    {
+        game->moveCursor(x, y); 
+    }
+    else
+    {
+        game->moveView(x, y);
+    }
+}
 
 int main()
 {
-    ifstream file("glidergun.txt");
+    ifstream gliderGun("glidergun.txt");
 
-    Life* game = new Life();
-
-    game->fillViewFromFile(file);
+    Life *game = new Life();
+    bool using_cursor = false;
 
     for(;;) {
-        game->printView(); 
-        usleep(1);
-        game->nextGeneration();
+        game->printView(using_cursor);
+        print_menu(using_cursor);
+
+        char input = read_char();
+        
+        switch(input)
+        {
+            case 'w':
+                move_cursor_or_view(game, using_cursor, 0, -1);
+                break;
+            case 'a':
+                move_cursor_or_view(game, using_cursor, -1, 0);
+                break;
+            case 's':
+                move_cursor_or_view(game, using_cursor, 0, 1);
+                break;
+            case 'd':
+                move_cursor_or_view(game, using_cursor, 1, 0);
+                break;
+        }
+
+        switch(input)
+        {
+            // Menu
+            case '1': exit(0);
+
+            case '2':
+                game->killAll();
+                break;
+            case '3':
+                game->killView();
+                break;
+            case '4':
+                break; // Todo
+            case '5':
+                game->makeRandomAlive();
+                break;
+            case '6':
+                using_cursor = true;
+                break;
+            case '7':
+                game->fillViewFromFile(gliderGun);
+                break;
+            case '8':
+                game->nextGeneration();
+                break;
+            case '9':
+                while(true)
+                {
+                    game->nextGeneration();
+                    game->printView(using_cursor);
+                }
+                break;
+
+            case ' ':
+                if(using_cursor) game->toggleCursor();
+                break;
+            case 'b':
+                using_cursor = false;
+                break;
+        }
     }
 
     return 0;
