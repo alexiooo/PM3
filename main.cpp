@@ -170,6 +170,8 @@ class Life {
 
     void printView(bool print_cursor) {
         
+        cout << "Coordinates of view: (" << view_x << ", " << view_y << ")" << endl;
+
         if(print_cursor)
         {
             for(int x = view_x; x < cursor_x && x < VIEW_WIDTH; x++)
@@ -346,7 +348,7 @@ int main()
                 game->nextGeneration();
                 break;
             case '9':
-                while(true)
+                for(;;)
                 {
                     game->nextGeneration();
                     game->printView(using_cursor);
@@ -354,6 +356,7 @@ int main()
                 }
                 break;
 
+            // Cursor
             case ' ':
                 if(using_cursor) game->toggleCursor();
                 break;
