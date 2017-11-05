@@ -236,14 +236,15 @@ int read_num(int max_digits) {
     int num = 0;
     int maximum = max_digits * 10;
 
-    char kar = read_char();
-    while ( kar != '\n' ) {
-        if ( num < maximum && '0' <= kar && kar <= 9 ){
+    char kar = cin.get();
+
+    while((kar = cin.get()) != '\n') {
+        if ( num < maximum && '0' <= kar && kar <= '9'){
             num *= 10;
             num += kar - '0';
         }
-        kar = cin.get();
     }
+
     return num;
 }
 
