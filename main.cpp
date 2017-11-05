@@ -347,6 +347,7 @@ int main()
                 {
                     game->nextGeneration();
                     game->printView(using_cursor);
+                    usleep(200000); // Sleep for 50ms
                 }
                 break;
 
