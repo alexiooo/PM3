@@ -10,19 +10,23 @@ using namespace std;
 
 // Random number generator
 class RNG {
+    private:
     static int random_number;
 
     public:
 
     static void set_seed(int seed) {
-        random_number = seed;
+        RNG::random_number = seed;
     }
 
     static int get_random_number() {
-        random_number = (221 * random_number + 1) % WORLD_SIZE;
-        return random_number;
+        RNG::random_number = (221 * RNG::random_number + 1) % WORLD_SIZE;
+        return RNG::random_number;
     }
 };
+
+// Define storage for variable
+int RNG::random_number;
 
 class Life {
     
