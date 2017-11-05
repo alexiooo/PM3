@@ -50,7 +50,7 @@ class Life {
     
     // The amount of random cells picked and made alive
     // when the board is filled randomly.
-    int random_count = 0;
+    int random_count = 300000;
     
     static bool positionWithinWorld(int x, int y) {
         return x >= 0 && x < WORLD_SIZE
@@ -87,6 +87,15 @@ class Life {
     }
 
     public:
+
+    Life() {
+        time_t rawtime;
+        time(&rawtime);
+
+        struct tm date_now = *localtime(&rawtime);
+
+        RNG::set_seed(date_now.tm_sec);
+    }
 
     void nextGeneration() {
         // Produce the next board according
