@@ -57,6 +57,19 @@ class Life {
         return x >= 0 && x < WORLD_SIZE
             && y >= 0 && y < WORLD_SIZE;
     }
+ 
+    // Whether the position is on the edge of the world,
+    // the edge of the world is one character wide
+    static bool positionOnEdge(int x, int y) {
+        return ((x == -1 || x == WORLD_SIZE) && y >= -1 && y <= WORLD_SIZE) // Vertical edges
+            || ((y == -1 || y == WORLD_SIZE) && x >= -1 && x <= WORLD_SIZE); // Horizontal edges
+
+    }
+
+    bool positionWithinView(int x, int y) {
+        return x >= view_x && x <= view_x + VIEW_WIDTH
+            && y >= view_y && y <= view_y + VIEW_HEIGHT;
+    }
 
     bool isAlive(int x, int y) {
         // Edges are dead by default
@@ -118,9 +131,20 @@ class Life {
         view_y += y;
     }
 
+    void resetCursor() {
+        cursor_x = view_x;
+        cursor_y = view_y;
+    }
+
     void moveCursor(int x, int y) {
-        cursor_x += x;
-        cursor_y += y;
+        int new_x = cursor_x + x;
+        int new_y = cursor_y + y;
+
+        if(positionWithinView(new_x, new_y))
+        {
+            cursor_x = new_x;
+            cursor_y = new_y;
+        }
     }
 
     void toggleCursor() {
@@ -166,8 +190,8 @@ class Life {
 
             for(int x = view_x; x < view_x + VIEW_WIDTH; x++)
             {
-
-                if(board[x][y]) cout << "x";
+                if(Life::positionWithinWorld(x, y) && board[x][y]) cout << "x";
+                else if(Life::positionOnEdge(x, y)) cout << "#";
                 else cout << " ";
             }
 
@@ -247,7 +271,7 @@ void print_menu(bool using_cursor)
         cout << "7. Load glidergun.txt ";
         cout << "8. Compute one generation ";
         cout << "9. Run Game of Life " << endl;
-        cout << "Use W,A,S,D to move view around" << endl;
+        cout << "Use w,a,s,d to move view around" << endl;
     }
 }
 
@@ -309,6 +333,7 @@ int main()
                 game->makeRandomAlive();
                 break;
             case '6':
+                game->resetCursor();
                 using_cursor = true;
                 break;
             case '7':
