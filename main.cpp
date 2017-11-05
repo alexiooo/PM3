@@ -294,14 +294,20 @@ int main()
     Life *game = new Life();
     bool using_cursor = false;
 
-    for(;;) {
-        game->printView(using_cursor);
-        print_menu(using_cursor);
+    game->printView(using_cursor);
+    print_menu(using_cursor);
 
-        char input = read_char();
+    for(;;) {
+        char input = cin.get();
         
         switch(input)
         {
+            case '\n':
+                game->printView(using_cursor);
+                print_menu(using_cursor);
+                break;
+
+            // Movements
             case 'w':
                 move_cursor_or_view(game, using_cursor, 0, -1);
                 break;
@@ -314,10 +320,7 @@ int main()
             case 'd':
                 move_cursor_or_view(game, using_cursor, 1, 0);
                 break;
-        }
 
-        switch(input)
-        {
             // Menu
             case '1': exit(0);
 
