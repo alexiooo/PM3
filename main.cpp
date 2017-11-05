@@ -211,13 +211,6 @@ int read_num(int max_digits) {
     return num;
 }
 
-// Prints all screen elements
-void draw() {
-    cout << string(100, '-') << endl;
-    //drawLife()
-    cout << string (100, '-') << endl;
-    cout << endl; // Toon paramaterwaarden
-    cout << "(S)top (H)eelschoon S(c)hoon (P)arameters " << endl;
 }
 
 
