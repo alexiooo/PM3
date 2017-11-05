@@ -53,14 +53,14 @@ class Life {
     // when the board is filled randomly.
     int random_count = 0;
     
-    static bool isValidPosition(int x, int y) {
+    static bool positionWithinWorld(int x, int y) {
         return x >= 0 && x < WORLD_SIZE
             && y >= 0 && y < WORLD_SIZE;
     }
 
     bool isAlive(int x, int y) {
         // Edges are dead by default
-        return Life::isValidPosition(x, y) && board[x][y];
+        return Life::positionWithinWorld(x, y) && board[x][y];
     }
 
     int countLiveNeighbours(int x, int y) {
@@ -124,7 +124,7 @@ class Life {
     }
 
     void toggleCursor() {
-        if(Life::isValidPosition(cursor_x, cursor_y)) {
+        if(Life::positionWithinWorld(cursor_x, cursor_y)) {
             board[cursor_x][cursor_y] = !board[cursor_x][cursor_y];
         }
     }
@@ -193,7 +193,7 @@ class Life {
             }
             else
             {
-                if(Life::isValidPosition(x, y))
+                if(Life::positionWithinWorld(x, y))
                 {
                     if(symbol == 'x') board[x][y] = true;
                     else board[x][y] = false;
