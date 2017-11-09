@@ -85,7 +85,8 @@ class Life {
 
     // Parameters
     // Size of changes in view or cursor position
-    int step_size = 1;
+    int view_step_size = 1;
+    int cursor_step_size = 1;
     // Characters for respectively dead or alive cells
     char dead_cell = ' ';
     char live_cell = 'x';
@@ -140,8 +141,8 @@ class Life {
     }
 
     void moveView(int x, int y) {
-        view_x += x*step_size;
-        view_y += y*step_size;
+        view_x += x*view_step_size;
+        view_y += y*view_step_size;
     }
 
     void resetCursor() {
@@ -150,8 +151,8 @@ class Life {
     }
 
     void moveCursor(int x, int y) {
-        int new_x = cursor_x + x*step_size;
-        int new_y = cursor_y + y*step_size;
+        int new_x = cursor_x + x*cursor_step_size;
+        int new_y = cursor_y + y*cursor_step_size;
 
         if(positionWithinView(new_x, new_y))
         {
@@ -172,18 +173,16 @@ class Life {
 
         // Then fill cells at random
         for(int x=view_x; x<view_x+VIEW_WIDTH; x++)
+        for(int y=view_y; y<view_y+VIEW_HEIGHT; y++)
         {
-            for(int y=view_y; y<view_y+VIEW_HEIGHT; y++)
-            {
-                board[x][y] = RNG::get_random_number() < threshold;
-            }
+            board[x][y] = RNG::get_random_number() < threshold;
         }
     }
 
     void printView(bool print_cursor) {
 
         cout << "Coordinates of view: (" << view_x << ", " << view_y << ")    ";
-        cout << "Stepsize: " << step_size << ", ";
+        cout << "Stepsize: " << view_step_size << "/" << cursor_step_size << ", ";
         cout << "Random Filling: " << random_percentage << "%, ";
         cout << "Live cells: '" << live_cell << "', ";
         cout << "Dead cells: '" << dead_cell << "'" << endl;
@@ -249,6 +248,14 @@ class Life {
         }
     }
 
+    int get_maximum_cursor_step_size() {
+        return (
+            Life::VIEW_HEIGHT < Life::VIEW_WIDTH ?
+                                Life::VIEW_HEIGHT
+                                : Life::VIEW_WIDTH
+        ) - 1;
+    }
+
 };
 
 class Menu {
@@ -296,9 +303,10 @@ class Menu {
         cout << "Press b to return to menu" << endl;
     }
 
+    // handles input, returns whether screen should be redrawn
     static bool input_cursor_menu(Life *game, char input)
     {
-        switch(input)
+        switch(input)\
         {
             case 'w':
                 game->moveCursor(0, -1);
@@ -319,48 +327,55 @@ class Menu {
             case 'b':
                 Menu::current_menu = Menu::MAIN;
                 break;
-
-            default:
-                return false;
         }
-        return true;
+        return false;
     }
 
     static void print_param_menu(Life *game) {
         cout << "Change parameters or press b to go back" << endl;
         cout << "Numbers will be read as long as they don't exceed the given maximum,"
             << " further digits are ignored" << endl;
-        cout << "1. Stepsize (" << game->step_size << ") ";
-        cout << "2. Random Filling Percentage (" << game->random_percentage << ") ";
-        cout << "3. Alive Char ('" << game->live_cell << "') ";
-        cout << "4. Dead Char ('" << game->dead_cell << "') " << endl;
+        cout << "1.View Step Size (" << game->view_step_size << ") ";
+        cout << "2.Cursor Step Size (" << game->cursor_step_size << ") ";
+        cout << "3.Random Filling Percentage (" << game->random_percentage << ") ";
+        cout << "4.Alive Char ('" << game->live_cell << "') ";
+        cout << "5.Dead Char ('" << game->dead_cell << "') " << endl;
     }
 
+    // handles input, returns whether screen should be redrawn
     static bool input_param_menu(Life *game, char input){
         switch(input){
             case '1':
                 game->printView(false);
                 cout << endl << endl;
-                cout << "Give a new step size (0-500) for view/cursor changes:"
+                cout << "Give a new step size (0-500) for view changes:"
                     << endl;
-                game->step_size = read_number(500);
+                game->view_step_size = read_number(500);
                 break;
 
             case '2':
+                game->printView(false);
+                cout << endl << endl;
+                cout << "Give a new step size (0-" << game->get_maximum_cursor_step_size()
+                    <<") for cursor changes:" << endl;
+                game->cursor_step_size = read_number( game->get_maximum_cursor_step_size() );
+                break;
+
+            case '3':
                 game->printView(false);
                 cout << endl << endl;
                 cout << "Give a percentage (0-100) for random filling:" << endl;
                 game->random_percentage = read_number(100);
                 break;
 
-            case '3':
+            case '4':
                 game->printView(false);
                 cout << endl << endl;
                 cout << "Give a new character for live cells:" << endl;
                 game->live_cell = read_character();
                 break;
 
-            case '4':
+            case '5':
                 game->printView(false);
                 cout << endl << endl;
                 cout << "Give a new character for dead cells:" << endl;
@@ -369,13 +384,12 @@ class Menu {
 
             case 'b':
                 current_menu = MAIN;
-                break;
+                return false;
 
             default:
                 return false;
         }
-        print_all(game);
-        return false;
+        return true;
     };
 
     static void print_main_menu()
@@ -392,6 +406,7 @@ class Menu {
         cout << "Use w,a,s,d to move view around" << endl;
     }
 
+    // handles input, returns whether screen should be redrawn
     static bool input_main_menu(Life *game, char input)
     {
         switch(input)
@@ -444,11 +459,8 @@ class Menu {
                     usleep(200000); // Sleep for 50ms
                 }
                 break;
-
-            default:
-                return false;
         }
-        return true;
+        return false;
     }
 
     public:
@@ -477,28 +489,25 @@ class Menu {
         }
     }
 
-    static void print_all(Life *game){
-        game->printView( current_menu == CURSOR );
-        print_menu(game);
-    }
-
-    static void handle_input(Life *game, char input){
+    // Handles input for the active menu
+    // Returns whether the screen should be redrawn
+    static bool handle_input(Life *game, char input){
         if(input == '\n')
         {
-            print_all(game);
+            return true;
         } else {
             switch(current_menu){
                 case CURSOR:
-                    input_cursor_menu(game, input);
+                    return input_cursor_menu(game, input);
                     break;
 
                 case PARAM:
-                    input_param_menu(game, input);
+                    return input_param_menu(game, input);
                     break;
 
                 case MAIN:
                 default:
-                    input_main_menu(game, input);
+                    return input_main_menu(game, input);
                     break;
             }
         }
@@ -512,11 +521,15 @@ int main()
     Life *game = new Life();
     Menu::current_menu = Menu::MAIN;
 
-    Menu::print_all(game);
+    game->printView(false);
+    Menu::print_menu(game);
 
     for(;;) {
         char input = cin.get();
-        Menu::handle_input( game, input);
+        if(Menu::handle_input( game, input) ) {
+            game->printView( Menu::current_menu == Menu::CURSOR );
+            Menu::print_menu(game);
+        };
     }
 
     return 0;
