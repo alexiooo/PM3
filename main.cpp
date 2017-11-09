@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <ctime>
 #include <unistd.h>
 
 
@@ -28,7 +29,7 @@ class RNG {
 long RNG::random_number;
 
 class Life {
-    
+
     const int VIEW_WIDTH = 80;
     const int VIEW_HEIGHT = 25;
 
@@ -46,17 +47,11 @@ class Life {
     // the next generation
     bool temp_board[WORLD_SIZE][WORLD_SIZE] = { 0 };
 
-    // Parameters
-    
-    // The amount of random cells picked and made alive
-    // when the board is filled randomly.
-    int random_count = 300000;
-    
     static bool positionWithinWorld(int x, int y) {
         return x >= 0 && x < WORLD_SIZE
             && y >= 0 && y < WORLD_SIZE;
     }
- 
+
     // Whether the position is on the edge of the world,
     // the edge of the world is one character wide
     static bool positionOnEdge(int x, int y) {
@@ -88,6 +83,16 @@ class Life {
 
     public:
 
+    // Parameters
+    // Size of changes in view or cursor position
+    int step_size = 1;
+    // Characters for respectively dead or alive cells
+    char dead_cell = ' ';
+    char live_cell = 'x';
+    // The percentage (out of 100) of random cells picked and made alive
+    // when the view is filled randomly.
+    int random_percentage = 50;
+
     Life() {
         time_t rawtime;
         time(&rawtime);
@@ -115,7 +120,7 @@ class Life {
             }
         }
 
-        memcpy(board, temp_board, sizeof(bool) * WORLD_SIZE * WORLD_SIZE); 
+        memcpy(board, temp_board, sizeof(bool) * WORLD_SIZE * WORLD_SIZE);
     }
 
     void killAll() {
@@ -135,8 +140,8 @@ class Life {
     }
 
     void moveView(int x, int y) {
-        view_x += x;
-        view_y += y;
+        view_x += x*step_size;
+        view_y += y*step_size;
     }
 
     void resetCursor() {
@@ -145,8 +150,8 @@ class Life {
     }
 
     void moveCursor(int x, int y) {
-        int new_x = cursor_x + x;
-        int new_y = cursor_y + y;
+        int new_x = cursor_x + x*step_size;
+        int new_y = cursor_y + y*step_size;
 
         if(positionWithinView(new_x, new_y))
         {
@@ -161,30 +166,33 @@ class Life {
         }
     }
 
+    // Fills the view with random cells (determined by random_percentage)
     void makeRandomAlive() {
-
-        // Clear board
-        killAll();
+        int threshold = random_percentage * WORLD_SIZE / 100;
 
         // Then fill cells at random
-        for(int i = 0; i < random_count; i++)
+        for(int x=view_x; x<view_x+VIEW_WIDTH; x++)
         {
-            int x = RNG::get_random_number();
-            int y = RNG::get_random_number();
-
-            board[x][y] = true;
+            for(int y=view_y; y<view_y+VIEW_HEIGHT; y++)
+            {
+                board[x][y] = RNG::get_random_number() < threshold;
+            }
         }
     }
 
     void printView(bool print_cursor) {
-        
-        cout << "Coordinates of view: (" << view_x << ", " << view_y << ")" << endl;
+
+        cout << "Coordinates of view: (" << view_x << ", " << view_y << ")    ";
+        cout << "Stepsize: " << step_size << ", ";
+        cout << "Random Filling: " << random_percentage << "%, ";
+        cout << "Live cells: '" << live_cell << "', ";
+        cout << "Dead cells: '" << dead_cell << "'" << endl;
 
         if(print_cursor)
         {
             for(int x = view_x; x < cursor_x && x < VIEW_WIDTH; x++)
             {
-                cout << " "; 
+                cout << " ";
             }
             cout << " |" << endl;
         }
@@ -200,30 +208,33 @@ class Life {
 
             for(int x = view_x; x < view_x + VIEW_WIDTH; x++)
             {
-                if(Life::positionWithinWorld(x, y) && board[x][y]) cout << "x";
+                if(Life::positionWithinWorld(x, y) && board[x][y])
+                    cout << live_cell;
                 else if(Life::positionOnEdge(x, y)) cout << "#";
-                else cout << " ";
+                else cout << dead_cell;
             }
 
             cout << endl;
         }
     }
 
-    void fillViewFromFile(ifstream& file)
+    void fillViewFromFile(string filename)
     {
-        killAll();
-
         int symbol;
 
         int x = view_x;
         int y = view_y;
+
+        ifstream file(filename);
+
+        killAll();
 
         while((symbol = file.get()) != EOF)
         {
             if(symbol == '\n')
             {
                 x = view_x;
-                y += 1;    
+                y += 1;
             }
             else
             {
@@ -237,34 +248,137 @@ class Life {
             }
         }
     }
+
 };
 
-// Reads a number from stdin, stops interpreting when maxDigits has been reached
-int read_num(int max_digits) {
-    int num = 0;
-    int maximum = max_digits * 10;
+class Menu {
 
-    char kar = cin.get();
+    private:
+        // Gives the first non-newline character on stdin
+        static char read_character()
+        {
+            char kar;
 
-    while((kar = cin.get()) != '\n') {
-        if ( num < maximum && '0' <= kar && kar <= '9'){
-            num *= 10;
-            num += kar - '0';
+            while((kar = cin.get()) == '\n'){};
+
+            return kar;
         }
-    }
 
-    return num;
-}
+        // Reads a number from stdin, stops when number would exceed maximum
+        static int read_number(int maximum)
+        {
+            int num = 0;
 
-void print_menu(bool using_cursor)
-{
-    if(using_cursor)
+            char kar = read_character();
+            do {
+                if ('0' <= kar && kar <= '9')
+                {
+                    int new_num = num * 10;
+                    new_num += kar - '0';
+                    if(new_num <= maximum)
+                    {
+                        num = new_num;
+                    } else {
+                        // Prevent extra numbers from being seen as menu-input
+                        while(cin.get() != '\n'){}
+                        return num;
+                    }
+                }
+                kar = cin.get();
+            } while(kar != '\n');
+            return num;
+        }
+
+        static void print_cursor_menu()
     {
         cout << "Use w,a,s,d to move cursor around" << endl;
         cout << "Press space to toggle cell" << endl;
         cout << "Press b to return to menu" << endl;
     }
-    else
+
+    static bool input_cursor_menu(Life *game, char input)
+    {
+        switch(input)
+        {
+            case 'w':
+                game->moveCursor(0, -1);
+               break;
+            case 'a':
+                game->moveCursor(-1, 0);
+                break;
+            case 's':
+                game->moveCursor(0, 1);
+                break;
+            case 'd':
+                game->moveCursor(1, 0);
+                break;
+
+            case ' ':
+                game->toggleCursor();
+                break;
+            case 'b':
+                Menu::current_menu = Menu::MAIN;
+                break;
+
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    static void print_param_menu(Life *game) {
+        cout << "Change parameters or press b to go back" << endl;
+        cout << "Numbers will be read as long as they don't exceed the given maximum,"
+            << " further digits are ignored" << endl;
+        cout << "1. Stepsize (" << game->step_size << ") ";
+        cout << "2. Random Filling Percentage (" << game->random_percentage << ") ";
+        cout << "3. Alive Char ('" << game->live_cell << "') ";
+        cout << "4. Dead Char ('" << game->dead_cell << "') " << endl;
+    }
+
+    static bool input_param_menu(Life *game, char input){
+        switch(input){
+            case '1':
+                game->printView(false);
+                cout << endl << endl;
+                cout << "Give a new step size (0-500) for view/cursor changes:"
+                    << endl;
+                game->step_size = read_number(500);
+                break;
+
+            case '2':
+                game->printView(false);
+                cout << endl << endl;
+                cout << "Give a percentage (0-100) for random filling:" << endl;
+                game->random_percentage = read_number(100);
+                break;
+
+            case '3':
+                game->printView(false);
+                cout << endl << endl;
+                cout << "Give a new character for live cells:" << endl;
+                game->live_cell = read_character();
+                break;
+
+            case '4':
+                game->printView(false);
+                cout << endl << endl;
+                cout << "Give a new character for dead cells:" << endl;
+                game->dead_cell = read_character();
+                break;
+
+            case 'b':
+                current_menu = MAIN;
+                break;
+
+            default:
+                return false;
+        }
+        print_all(game);
+        return false;
+    };
+
+    static void print_main_menu()
     {
         cout << "1. Exit ";
         cout << "2. Clean world ";
@@ -272,57 +386,28 @@ void print_menu(bool using_cursor)
         cout << "4. Change parameters ";
         cout << "5. Random ";
         cout << "6. Toggle using cursor ";
-        cout << "7. Load glidergun.txt ";
-        cout << "8. Compute one generation ";
+        cout << "7. Load glidergun.txt " << endl;
+        cout << " 8. Compute one generation ";
         cout << "9. Run Game of Life " << endl;
         cout << "Use w,a,s,d to move view around" << endl;
     }
-}
 
-void move_cursor_or_view(Life *game, bool use_cursor, int x, int y)
-{
-    if(use_cursor)
+    static bool input_main_menu(Life *game, char input)
     {
-        game->moveCursor(x, y); 
-    }
-    else
-    {
-        game->moveView(x, y);
-    }
-}
-
-int main()
-{
-    ifstream gliderGun("glidergun.txt");
-
-    Life *game = new Life();
-    bool using_cursor = false;
-
-    game->printView(using_cursor);
-    print_menu(using_cursor);
-
-    for(;;) {
-        char input = cin.get();
-        
         switch(input)
         {
-            case '\n':
-                game->printView(using_cursor);
-                print_menu(using_cursor);
-                break;
-
             // Movements
             case 'w':
-                move_cursor_or_view(game, using_cursor, 0, -1);
+                game->moveView(0, -1);
                 break;
             case 'a':
-                move_cursor_or_view(game, using_cursor, -1, 0);
+                game->moveView(-1, 0);
                 break;
             case 's':
-                move_cursor_or_view(game, using_cursor, 0, 1);
+                game->moveView(0, 1);
                 break;
             case 'd':
-                move_cursor_or_view(game, using_cursor, 1, 0);
+                game->moveView(1, 0);
                 break;
 
             // Menu
@@ -335,16 +420,17 @@ int main()
                 game->killView();
                 break;
             case '4':
-                break; // Todo
+                current_menu = PARAM;
+                break;
             case '5':
                 game->makeRandomAlive();
                 break;
             case '6':
                 game->resetCursor();
-                using_cursor = true;
+                current_menu = CURSOR;
                 break;
             case '7':
-                game->fillViewFromFile(gliderGun);
+                game->fillViewFromFile("gliderGun.txt");
                 break;
             case '8':
                 game->nextGeneration();
@@ -353,19 +439,84 @@ int main()
                 for(;;)
                 {
                     game->nextGeneration();
-                    game->printView(using_cursor);
+                    game->printView(false);
+                    cout << endl << endl << endl;
                     usleep(200000); // Sleep for 50ms
                 }
                 break;
 
-            // Cursor
-            case ' ':
-                if(using_cursor) game->toggleCursor();
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    public:
+
+    static int current_menu;
+
+    static const int MAIN = 0;
+    static const int CURSOR = 1;
+    static const int PARAM = 2;
+
+    static void print_menu(Life *game)
+    {
+        switch(current_menu){
+            case CURSOR:
+                print_cursor_menu();
                 break;
-            case 'b':
-                using_cursor = false;
+
+            case PARAM:
+                print_param_menu(game);
+                break;
+
+            case MAIN:
+            default:
+                print_main_menu();
                 break;
         }
+    }
+
+    static void print_all(Life *game){
+        game->printView( current_menu == CURSOR );
+        print_menu(game);
+    }
+
+    static void handle_input(Life *game, char input){
+        if(input == '\n')
+        {
+            print_all(game);
+        } else {
+            switch(current_menu){
+                case CURSOR:
+                    input_cursor_menu(game, input);
+                    break;
+
+                case PARAM:
+                    input_param_menu(game, input);
+                    break;
+
+                case MAIN:
+                default:
+                    input_main_menu(game, input);
+                    break;
+            }
+        }
+    }
+};
+
+int Menu::current_menu = Menu::MAIN;
+
+int main()
+{
+    Life *game = new Life();
+    Menu::current_menu = Menu::MAIN;
+
+    Menu::print_all(game);
+
+    for(;;) {
+        char input = cin.get();
+        Menu::handle_input( game, input);
     }
 
     return 0;
