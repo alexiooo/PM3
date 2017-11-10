@@ -153,11 +153,7 @@ class Life {
     }
 
     void killAll() {
-        for(int x = 0; x < WORLD_SIZE; x++)
-        for(int y = 0; y < WORLD_SIZE; y++)
-        {
-            board[x][y] = false;
-        }
+        memset(board, 0, sizeof(bool) * WORLD_SIZE * WORLD_SIZE);
     }
 
     void killView() {
