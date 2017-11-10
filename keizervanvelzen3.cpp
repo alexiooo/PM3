@@ -390,7 +390,7 @@ class Menu {
     }
 
     // handles input, returns whether screen should be redrawn
-    static bool inputCursorMenu(Life *game, char input) {
+    bool inputCursorMenu(Life *game, char input) {
 
         switch(input)
         {
@@ -429,7 +429,7 @@ class Menu {
     }
 
     // handles input, returns whether screen should be redrawn
-    static bool inputParamMenu(Life *game, char input) {
+    bool inputParamMenu(Life *game, char input) {
 
         switch(input)
         {
@@ -487,6 +487,7 @@ class Menu {
             default:
                 return false;
         }
+
         return true;
     };
 
@@ -505,7 +506,7 @@ class Menu {
     }
 
     // handles input, returns whether screen should be redrawn
-    static bool inputMainMenu(Life *game, char input) {
+    bool inputMainMenu(Life *game, char input) {
 
         switch(input)
         {
@@ -568,13 +569,9 @@ class Menu {
 
     public:
 
-    static int current_menu;
+    enum { MAIN, CURSOR, PARAM } current_menu = MAIN;
 
-    static const int MAIN = 0;
-    static const int CURSOR = 1;
-    static const int PARAM = 2;
-
-    static void printMenu(Life *game) {
+    void printMenu(Life *game) {
 
         switch(current_menu)
         {
@@ -595,7 +592,7 @@ class Menu {
 
     // Handles input for the active menu
     // Returns whether the screen should be redrawn
-    static bool handleInput(Life *game, char input) {
+    bool handleInput(Life *game, char input) {
 
         if(input == '\n')
         {
@@ -608,11 +605,9 @@ class Menu {
                 case CURSOR:
                     return inputCursorMenu(game, input);
                     break;
-
                 case PARAM:
                     return inputParamMenu(game, input);
                     break;
-
                 case MAIN:
                 default:
                     return inputMainMenu(game, input);
@@ -622,23 +617,21 @@ class Menu {
     }
 };
 
-int Menu::current_menu = Menu::MAIN;
-
 int main()
 {
     Life *game = new Life();
-    Menu::current_menu = Menu::MAIN;
+    Menu *menu = new Menu();
 
     game->printView(false);
-    Menu::printMenu(game);
+    menu->printMenu(game);
 
     for(;;) {
         char input = cin.get();
 
-        if(Menu::handleInput(game, input))
+        if(menu->handleInput(game, input))
         {
-            game->printView(Menu::current_menu == Menu::CURSOR);
-            Menu::printMenu(game);
+            game->printView(menu->current_menu == Menu::CURSOR);
+            menu->printMenu(game);
         }
     }
 
