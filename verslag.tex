@@ -86,9 +86,13 @@ Op dit punt zijn de interessante elementen helaas niet meer in de grootte van de
 
 \newpage
 
+\section{Windows}
+
+Bij het continue draaien van Life hebben wij de \verb+nanosleep()+ functie gebruikt om leesbaarheid van een generatie te verbeteren. Helaas werkt deze functie niet op Windows en is er geen goed OS-onafhankelijk alternatief (\verb+usleep()+ wordt als \verb+deprecated+ gemarkeerd). De functie is echter niet noodzakelijk, op Windows zal het scherm slechts wat sneller verversen.
+
 \section{Tijd}
 
-Tijd in uren besteed per week:
+Laatste wijziging gemaakt op 10/11/2017. Tijd in uren besteed per week:
 
 \begin{center}
 \begin{tabular}{ |c|c|c| }
@@ -103,8 +107,6 @@ Totaal & 7 & 6 \\
 \hline
 \end{tabular}
 \end{center}
-
-Laatste wijziging op 10/11/2017
 
 \begin{thebibliography}{9}
     \bibitem{glidergun} Gosper glider gun. Geraadpleegd op 9/11/2017, \\

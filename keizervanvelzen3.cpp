@@ -1,4 +1,4 @@
-//  Tweede opdracht voor Programmeermethoden
+//  Derde opdracht voor Programmeermethoden
 //  Auteurs:
 //        Alex Keizer (s2046253), eerstejaars Informatica (2017)
 //        Léon van Velzen (s2037033), eerstejaars Informatica (2017)
@@ -9,14 +9,16 @@
 //
 //  Aan gewerkt in de periode 27/10/2017 tot 10/11/2017
 //
-//  Onze implementatie van John Conways Game Of Life
-
+//  Onze implementatie van John Conways Game Of Life op een 1000x1000 wereld
+//  Gebruikers zien een 80x25 vershuifbare view van deze wereld
+//  Er zijn een aantal opties om de wereld te vullen, vervolgens kan ofwel
+//   generatie per generatie ofwel continu Life gedraaid worden
 
 #include <iostream>
 #include <fstream>
 #include <cstring>
 #include <ctime>
-#include <unistd.h>
+#include <cstdlib>
 
 
 using namespace std;
@@ -553,7 +555,12 @@ class Menu {
                     game->nextGeneration();
                     game->printView(false);
                     cout << endl << endl << endl;
-                    usleep(200000); // Sleep for 50ms
+
+                    // Sleep for 50ms (POSIX only)
+                    struct timespec sleep = {0};
+                    sleep.tv_sec = 0;
+                    sleep.tv_nsec =  50000000L;
+                    nanosleep(&sleep, (struct timespec *)NULL);
                 }
                 break;
         }
