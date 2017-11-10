@@ -73,10 +73,10 @@ class Life {
     // when the view is filled randomly.
     int random_percentage = 50;
 
-    bool board[WORLD_SIZE][WORLD_SIZE] = { 0 };
+    bool board[WORLD_SIZE][WORLD_SIZE] = { { 0 } };
     // Used to fill the actual board when computing
     // the next generation
-    bool temp_board[WORLD_SIZE][WORLD_SIZE] = { 0 };
+    bool temp_board[WORLD_SIZE][WORLD_SIZE] = { { 0 } };
 
     static bool positionWithinWorld(int x, int y) {
         return x >= 0 && x < WORLD_SIZE
