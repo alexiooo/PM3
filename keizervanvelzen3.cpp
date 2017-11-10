@@ -90,6 +90,7 @@ class Life {
     }
 
     bool positionWithinView(int x, int y) {
+
         return x >= view_x && x <= view_x + VIEW_WIDTH
             && y >= view_y && y <= view_y + VIEW_HEIGHT;
     }
@@ -100,6 +101,7 @@ class Life {
     }
 
     int countLiveNeighbours(int x, int y) {
+
         return isAlive(x - 1, y - 1)
             + isAlive(x, y - 1)
             + isAlive(x + 1, y - 1)
@@ -113,12 +115,13 @@ class Life {
     public:
 
     Life() {
+
         time_t rawtime;
         time(&rawtime);
 
         struct tm date_now = *localtime(&rawtime);
 
-        RNG::set_seed(date_now.tm_sec);
+        RNG::setSeed(date_now.tm_sec);
     }
 
     void nextGeneration() {
@@ -170,13 +173,11 @@ class Life {
         int new_y = view_y + y*view_step_size;
 
         if(new_x < 0) view_x = -1;
-        else if(new_x > WORLD_SIZE - VIEW_WIDTH)
-            view_x = WORLD_SIZE - VIEW_WIDTH + 1;
+        else if(new_x > WORLD_SIZE - VIEW_WIDTH) view_x = WORLD_SIZE - VIEW_WIDTH + 1;
         else view_x = new_x;
 
         if(new_y < 0) view_y = -1;
-        else if(new_y > WORLD_SIZE - VIEW_HEIGHT)
-            view_y = WORLD_SIZE - VIEW_HEIGHT + 1;
+        else if(new_y > WORLD_SIZE - VIEW_HEIGHT) view_y = WORLD_SIZE - VIEW_HEIGHT + 1;
         else view_y = new_y;
     }
 
@@ -213,7 +214,7 @@ class Life {
         for(int y=view_y; y<view_y+VIEW_HEIGHT; y++)
         {
             if(positionWithinWorld(x,y)){
-                board[x][y] = RNG::get_random_number() < threshold;
+                board[x][y] = RNG::getRandomNumber() < threshold;
             }
         }
     }
@@ -255,8 +256,8 @@ class Life {
         }
     }
 
-    void fillViewFromFile(string filename)
-    {
+    void fillViewFromFile(string filename) {
+
         int symbol;
 
         int x = view_x;
@@ -287,6 +288,7 @@ class Life {
     }
 
     int getMaximumCursorStepSize() {
+
         if(Life::VIEW_HEIGHT < Life::VIEW_WIDTH)
         {
             return Life::VIEW_HEIGHT - 1;
@@ -297,40 +299,38 @@ class Life {
         }
     }
 
-    // Parameter getters and setters
 
     int getViewStepSize() {return view_step_size;}
     int getCursorStepSize() {return cursor_step_size;}
     char getDeadCell() {return dead_cell;}
     char getLiveCell(){return live_cell;}
     int getRandomPercentage(){return random_percentage;}
+    void setViewStepSize(int new_size) {
 
-    void setViewStepSize(int new_size)
-    {
         if(0 <= new_size && new_size <= 500)
             view_step_size = new_size;
     }
 
-    void setCursorStepSize(int new_size)
-    {
+    void setCursorStepSize(int new_size) {
+
         if(0 <= new_size && new_size <= getMaximumCursorStepSize())
             cursor_step_size = new_size;
     }
 
-    void setDeadCell(char new_char)
-    {
+    void setDeadCell(char new_char) {
+
         if(new_char != '\t' && new_char != '\n')
             dead_cell = new_char;
     }
 
-    void setLiveCell(char new_char)
-    {
+    void setLiveCell(char new_char) {
+
         if(new_char != '\t' && new_char != '\n')
             live_cell = new_char;
     }
 
-    void setRandomPercentage(int new_percentage)
-    {
+    void setRandomPercentage(int new_percentage) {
+
         if(0 <= new_percentage && new_percentage <= 100)
             random_percentage = new_percentage;
     }
@@ -342,8 +342,8 @@ class Menu {
     private:
 
     // Gives the first non-newline character on stdin
-    static char readCharacter()
-    {
+    static char readCharacter() {
+
         char kar;
 
         while((kar = cin.get()) == '\n'){};
@@ -352,11 +352,12 @@ class Menu {
     }
 
     // Reads a number from stdin, stops when number would exceed maximum
-    static int readNumber(int maximum)
-    {
+    static int readNumber(int maximum) {
+
         int num = 0;
 
         char kar = readCharacter();
+
         do {
             if ('0' <= kar && kar <= '9')
             {
@@ -365,27 +366,31 @@ class Menu {
                 if(new_num <= maximum)
                 {
                     num = new_num;
-                } else {
+                }
+                else {
                     // Prevent extra numbers from being seen as menu-input
                     while(cin.get() != '\n'){}
                     return num;
                 }
             }
+
             kar = cin.get();
+
         } while(kar != '\n');
+
         return num;
     }
 
-    static void printCursorMenu()
-    {
+    static void printCursorMenu() {
+
         cout << "Use w,a,s,d to move cursor around" << endl;
         cout << "Press space to toggle cell" << endl;
         cout << "Press b to return to menu" << endl;
     }
 
     // handles input, returns whether screen should be redrawn
-    static bool inputCursorMenu(Life *game, char input)
-    {
+    static bool inputCursorMenu(Life *game, char input) {
+
         switch(input)
         {
             case 'w':
@@ -423,8 +428,10 @@ class Menu {
     }
 
     // handles input, returns whether screen should be redrawn
-    static bool inputParamMenu(Life *game, char input){
-        switch(input){
+    static bool inputParamMenu(Life *game, char input) {
+
+        switch(input)
+        {
             case '1':
                 game->printView(false);
                 cout << endl;
@@ -432,7 +439,7 @@ class Menu {
                     << "given maximum, further digits are ignored" << endl;
                 cout << "Give a new step size (0-500) for view changes:"
                     << endl;
-                game->setViewStepSize( readNumber(500) );
+                game->setViewStepSize(readNumber(500));
                 break;
 
             case '2':
@@ -443,7 +450,7 @@ class Menu {
                 cout << "Give a new step size (0-" << game->getMaximumCursorStepSize()
                     <<") for cursor changes:" << endl;
                 game->setCursorStepSize(
-                        readNumber( game->getMaximumCursorStepSize() )
+                        readNumber(game->getMaximumCursorStepSize())
                     );
                 break;
 
@@ -453,7 +460,7 @@ class Menu {
                 cout << "Numbers will be read as long as they don't exceed the "
                     << "given maximum, further digits are ignored" << endl;
                 cout << "Give a percentage (0-100) for random filling:" << endl;
-                game->setRandomPercentage( readNumber(100) );
+                game->setRandomPercentage(readNumber(100));
                 break;
 
             case '4':
@@ -461,7 +468,7 @@ class Menu {
                 cout << endl << endl;
                 cout << "Give a new character for live cells: "
                     << "(Tab is not allowed)" << endl;
-                game->setLiveCell( readCharacter() );
+                game->setLiveCell(readCharacter());
                 break;
 
             case '5':
@@ -469,7 +476,7 @@ class Menu {
                 cout << endl << endl;
                 cout << "Give a new character for dead cells: "
                     << "(Tab is not allowed)" << endl;
-                game->setDeadCell( readCharacter() );
+                game->setDeadCell(readCharacter());
                 break;
 
             case 'b':
@@ -482,8 +489,8 @@ class Menu {
         return true;
     };
 
-    static void printMainMenu()
-    {
+    static void printMainMenu() {
+
         cout << "1. Exit ";
         cout << "2. Clean world ";
         cout << "3. Clean view ";
@@ -497,8 +504,8 @@ class Menu {
     }
 
     // handles input, returns whether screen should be redrawn
-    static bool inputMainMenu(Life *game, char input)
-    {
+    static bool inputMainMenu(Life *game, char input) {
+
         switch(input)
         {
             // Movements
@@ -561,9 +568,10 @@ class Menu {
     static const int CURSOR = 1;
     static const int PARAM = 2;
 
-    static void printMenu(Life *game)
-    {
-        switch(current_menu){
+    static void printMenu(Life *game) {
+
+        switch(current_menu)
+        {
             case CURSOR:
                 printCursorMenu();
                 break;
@@ -581,12 +589,16 @@ class Menu {
 
     // Handles input for the active menu
     // Returns whether the screen should be redrawn
-    static bool handleInput(Life *game, char input){
+    static bool handleInput(Life *game, char input) {
+
         if(input == '\n')
         {
             return true;
-        } else {
-            switch(current_menu){
+        }
+        else
+        {
+            switch(current_menu)
+            {
                 case CURSOR:
                     return inputCursorMenu(game, input);
                     break;
@@ -616,10 +628,12 @@ int main()
 
     for(;;) {
         char input = cin.get();
-        if(Menu::handleInput( game, input) ) {
-            game->printView( Menu::current_menu == Menu::CURSOR );
+
+        if(Menu::handleInput(game, input))
+        {
+            game->printView(Menu::current_menu == Menu::CURSOR);
             Menu::printMenu(game);
-        };
+        }
     }
 
     return 0;
