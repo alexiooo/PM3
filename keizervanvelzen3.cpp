@@ -1,3 +1,17 @@
+//  Tweede opdracht voor Programmeermethoden
+//  Auteurs:
+//        Alex Keizer (s2046253), eerstejaars Informatica (2017)
+//        Léon van Velzen (s2037033), eerstejaars Informatica (2017)
+//
+//  Gecompileerd onder:
+//      Windows 10 met MinGW64 GCC versie 6.3.0
+//      Debian GNU/Linux 9 GCC versie 6.3.0
+//
+//  Aan gewerkt in de periode 27/10/2017 tot 10/11/2017
+//
+//  Onze implementatie van John Conways Game Of Life
+
+
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -208,7 +222,7 @@ class Life {
         cout << "Coordinates of view: (" << view_x << ", " << view_y << ")  ";
         cout << "Gen: " << generation << "    ";
         cout << "Stepsize: " << view_step_size << "/" << cursor_step_size << ", ";
-        cout << "Live: '" << live_cell << "', ";
+        cout << "Alive: '" << live_cell << "', ";
         cout << "Dead: '" << dead_cell << "'" << endl;
 
         if(print_cursor)
