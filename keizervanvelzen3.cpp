@@ -32,11 +32,11 @@ class RNG {
 
     static const long MOD =2147483647UL;
 
-    static void set_seed(long seed) {
+    static void setSeed(long seed) {
         RNG::random_number = seed % MOD;
     }
 
-    static long get_random_number() {
+    static long getRandomNumber() {
         return RNG::random_number = (MULT * RNG::random_number) % MOD;
     }
 };
