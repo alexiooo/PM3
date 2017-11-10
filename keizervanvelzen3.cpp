@@ -124,6 +124,10 @@ class Life {
             {
                 temp_board[x][y] = true;
             }
+            else
+            {
+                temp_board[x][y] = false;
+            }
         }
 
         generation++;
@@ -142,13 +146,25 @@ class Life {
         for(int x = view_x; x < view_x + VIEW_WIDTH; x++)
         for(int y = view_y; y < view_y + VIEW_HEIGHT; y++)
         {
-            board[x][y] = false;
+            if(positionWithinWorld(x,y))
+                board[x][y] = false;
         }
     }
 
+    // Moves the view, won't go further than -1 or WORLD_SIZE
     void moveView(int x, int y) {
-        view_x += x*view_step_size;
-        view_y += y*view_step_size;
+        int new_x = view_x + x*view_step_size;
+        int new_y = view_y + y*view_step_size;
+
+        if(new_x < 0) view_x = -1;
+        else if(new_x > WORLD_SIZE - VIEW_WIDTH)
+            view_x = WORLD_SIZE - VIEW_WIDTH + 1;
+        else view_x = new_x;
+
+        if(new_y < 0) view_y = -1;
+        else if(new_y > WORLD_SIZE - VIEW_HEIGHT)
+            view_y = WORLD_SIZE - VIEW_HEIGHT + 1;
+        else view_y = new_y;
     }
 
     void resetCursor() {
@@ -192,9 +208,8 @@ class Life {
         cout << "Coordinates of view: (" << view_x << ", " << view_y << ")  ";
         cout << "Gen: " << generation << "    ";
         cout << "Stepsize: " << view_step_size << "/" << cursor_step_size << ", ";
-        cout << "Random Filling: " << random_percentage << "%, ";
-        cout << "Live cells: '" << live_cell << "', ";
-        cout << "Dead cells: '" << dead_cell << "'" << endl;
+        cout << "Live: '" << live_cell << "', ";
+        cout << "Dead: '" << dead_cell << "'" << endl;
 
         if(print_cursor)
         {
@@ -380,6 +395,7 @@ class Menu {
     }
 
     static void print_param_menu(Life *game) {
+        cout << endl;
         cout << "Change parameters or press b to go back" << endl;
         cout << "1.View Step Size (" << game->get_view_step_size() << ") ";
         cout << "2.Cursor Step Size (" << game->get_cursor_step_size() << ") ";
@@ -457,7 +473,7 @@ class Menu {
         cout << "4. Change parameters ";
         cout << "5. Random ";
         cout << "6. Toggle using cursor ";
-        cout << "7. Load glidergun.txt " << endl;
+        cout << "7. Load glidergun.txt";
         cout << " 8. Compute one generation ";
         cout << "9. Run Game of Life " << endl;
         cout << "Use w,a,s,d to move view around" << endl;
