@@ -3,3 +3,6 @@ obj/*
 *.cbp
 *.depend
 *.layout
+*.synctex.gz
+*.exe
+*.o
