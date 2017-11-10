@@ -544,7 +544,7 @@ class Menu {
                 current_menu = CURSOR;
                 break;
             case '7':
-                game->fillViewFromFile("gliderGun.txt");
+                game->fillViewFromFile("glidergun.txt");
                 break;
             case '8':
                 game->nextGeneration();
