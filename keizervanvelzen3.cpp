@@ -207,7 +207,6 @@ class Life {
 
     // Fills the view with random cells (determined by random_percentage)
     void makeRandomAlive() {
-        killAll();
 
         int threshold = random_percentage * RNG::MOD / 100;
 
