@@ -286,11 +286,14 @@ class Life {
     }
 
     int get_maximum_cursor_step_size() {
-        return (
-            Life::VIEW_HEIGHT < Life::VIEW_WIDTH ?
-                                Life::VIEW_HEIGHT
-                                : Life::VIEW_WIDTH
-        ) - 1;
+        if(Life::VIEW_HEIGHT < Life::VIEW_WIDTH)
+        {
+            return Life::VIEW_HEIGHT - 1;
+        }
+        else
+        {
+            return Life::VIEW_WIDTH - 1;
+        }
     }
 
     // Parameter getters and setters
