@@ -26,19 +26,18 @@ class RNG {
     private:
     static long random_number;
 
-    static const long MULT = 29;
-    static const long INC = 1;
+    static const long MULT = 48271UL;
 
     public:
 
-    static const long MOD = 65536; // 2^16
+    static const long MOD =2147483647UL;
 
     static void set_seed(long seed) {
         RNG::random_number = seed % MOD;
     }
 
     static long get_random_number() {
-        return (RNG::random_number = (MULT * RNG::random_number + INC) % MOD);
+        return RNG::random_number = (MULT * RNG::random_number) % MOD;
     }
 };
 
